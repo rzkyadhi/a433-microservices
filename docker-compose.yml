@@ -1,0 +1,46 @@
+# Docker compose version
+version: '3.7'
+
+# Services
+services:
+    # Database service
+    item-db:
+        # Database using mongodb docker tag 3
+        image: mongo:3
+        # Map host port 27017 to container port 27017
+        ports:
+            - 27017:27017
+        # Connect the custom network
+        networks:
+            - item-app
+        # Create docker volume
+        volumes:
+            - app-db:/data/db
+        # Restart the container, everytime docker start
+        restart: on-failure
+
+    # App service
+    item-app:
+        # Using image item-app
+        image: item-app:v1
+        # Map host port 80 to container port 8080
+        ports:
+            - 80:8080
+        # Connect the custom network
+        networks:
+            - item-app
+        # Depends on item-db service, ensuring it starts first
+        depends_on:
+            - item-db
+        # Restart the container, everytime docker start
+        restart: on-failure
+
+# Docker volumes
+volumes:
+    # Define a docker volume
+    app-db:
+
+# Docker networks
+networks:
+    # Define a docker network
+    item-app:
