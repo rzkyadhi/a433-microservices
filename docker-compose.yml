@@ -7,9 +7,6 @@ services:
     item-db:
         # Database using mongodb docker tag 3
         image: mongo:3
-        # Map host port 27017 to container port 27017
-        ports:
-            - 27017:27017
         # Connect the custom network
         networks:
             - item-app
@@ -22,7 +19,7 @@ services:
     # App service
     item-app:
         # Using image item-app
-        image: item-app:v1
+        image: ghcr.io/rzkyadhi/item-app:v1
         # Map host port 80 to container port 8080
         ports:
             - 80:8080
