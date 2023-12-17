@@ -1,0 +1,50 @@
+version: 2.1
+jobs:
+  lint-dockerfile:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Hadolint
+          command: docker pull hadolint/hadolint
+      - run:
+          name: Lint Dockerfile
+          command: docker run --rm --interactive hadolint/hadolint < Dockerfile
+
+  build-app-karsajobs-ui:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: docker build -t ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest .
+      - run:
+          name: Login to Github Packages
+          command: docker login ghcr.io -u $GITHUB_USERNAME -p $GITHUB_TOKEN
+      - run:
+          name: Push Image to Github Packages
+          command: docker push ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest
+
+workflows:
+  karsajobs-frontend-workflow:
+    jobs:
+      - lint-dockerfile:
+          filters:
+            branches:
+              only: karsajobs-ui
+      - test-app:
+          requires:
+            - lint-dockerfile
+          filters:
+            branches:
+              only: karsajobs-ui
+      - build-app-karsajobs-ui:
+          requires:
+            - test-app
+          filters:
+            branches:
+              only: karsajobs-ui
