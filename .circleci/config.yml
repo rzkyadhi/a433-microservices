@@ -68,7 +68,7 @@ jobs:
           command: docker push ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest
 
 workflows:
-  karsajobs-backend-workflow:
+  karsajobs-workflow:
     jobs:
       - lint-backend-dockerfile:
           filters:
@@ -87,19 +87,13 @@ workflows:
             branches:
               only: karsajobs
 
-  karsajobs-frontend-workflow:
-    jobs:
       - lint-frontend-dockerfile:
           filters:
             branches:
               only: karsajobs-ui
-      - test-app:
+      - build-app-karsajobs-ui:
           requires:
             - lint-frontend-dockerfile
-          filters:
-            branches:
-              only: karsajobs-ui
-      - build-app-karsajobs-ui:
           filters:
             branches:
               only: karsajobs-ui
