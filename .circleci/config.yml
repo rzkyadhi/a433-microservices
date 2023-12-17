@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  lint-dockerfile:
+  lint-backend-dockerfile:
     docker:
       - image: cimg/base:stable
     steps:
@@ -38,16 +38,45 @@ jobs:
           name: Push Image to Github Packages
           command: docker push ghcr.io/$GITHUB_USERNAME/karsajobs:latest
 
+  lint-frontend-dockerfile:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Hadolint
+          command: docker pull hadolint/hadolint
+      - run:
+          name: Lint Dockerfile
+          command: docker run --rm --interactive hadolint/hadolint < Dockerfile
+
+  build-app-karsajobs-ui:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: docker build -t ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest .
+      - run:
+          name: Login to Github Packages
+          command: docker login ghcr.io -u $GITHUB_USERNAME -p $GITHUB_TOKEN
+      - run:
+          name: Push Image to Github Packages
+          command: docker push ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest
+
 workflows:
   karsajobs-backend-workflow:
     jobs:
-      - lint-dockerfile:
+      - lint-backend-dockerfile:
           filters:
             branches:
               only: karsajobs
       - test-app:
           requires:
-            - lint-dockerfile
+            - lint-backend-dockerfile
           filters:
             branches:
               only: karsajobs
@@ -57,3 +86,20 @@ workflows:
           filters:
             branches:
               only: karsajobs
+
+  karsajobs-frontend-workflow:
+    jobs:
+      - lint-frontend-dockerfile:
+          filters:
+            branches:
+              only: karsajobs-ui
+      - test-app:
+          requires:
+            - lint-frontend-dockerfile
+          filters:
+            branches:
+              only: karsajobs-ui
+      - build-app-karsajobs-ui:
+          filters:
+            branches:
+              only: karsajobs-ui
