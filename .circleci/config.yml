@@ -74,27 +74,27 @@ workflows:
       - lint-backend-dockerfile:
           filters:
             branches:
-              only: karsajobs
+              only: 
+                - karsajobs
+                - karsajobs-ui
+
       - test-app:
           requires:
             - lint-backend-dockerfile
           filters:
             branches:
               only: karsajobs
+
       - build-app-karsajobs:
           requires:
             - test-app
           filters:
             branches:
               only: karsajobs
-
-      - lint-frontend-dockerfile:
-          filters:
-            branches:
-              only: karsajobs-ui
+              
       - build-app-karsajobs-ui:
           requires:
-            - lint-frontend-dockerfile
+            - lint-backend-dockerfile
           filters:
             branches:
               only: karsajobs-ui
