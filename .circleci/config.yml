@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  lint-backend-dockerfile:
+  lint-dockerfile:
     docker:
       - image: cimg/base:stable
     steps:
@@ -28,73 +28,17 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: Build Docker Image
-          command: docker build -t ghcr.io/$GITHUB_USERNAME/karsajobs:latest .
-      - run:
-          name: Login to Github Packages
-          command: docker login ghcr.io -u $GITHUB_USERNAME -p $GITHUB_TOKEN
-      - run:
-          name: Push Image to Github Packages
-          command: docker push ghcr.io/$GITHUB_USERNAME/karsajobs:latest
-
-  lint-frontend-dockerfile:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Install Hadolint
-          command: docker pull hadolint/hadolint
-      - run:
-          name: Lint Dockerfile
-          command: docker run --rm --interactive hadolint/hadolint < Dockerfile
-
-  build-app-karsajobs-ui:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Build Docker Image
-          command: docker build -t ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest .
-      - run:
-          name: Login to Github Packages
-          command: docker login ghcr.io -u $GITHUB_USERNAME -p $GITHUB_TOKEN
-      - run:
-          name: Push Image to Github Packages
-          command: docker push ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest
+      - run: 'sh build_push_image_karsajobs.sh'
 
 workflows:
-  version: 2
-  karsajobs-workflow:
+  karsajobs-backend-workflow:
     jobs:
-      - lint-backend-dockerfile:
-          filters:
-            branches:
-              only: 
-                - karsajobs
-                - karsajobs-ui
+      - lint-dockerfile
 
       - test-app:
           requires:
-            - lint-backend-dockerfile
-          filters:
-            branches:
-              only: karsajobs
+            - lint-dockerfile
 
       - build-app-karsajobs:
           requires:
             - test-app
-          filters:
-            branches:
-              only: karsajobs
-              
-      - build-app-karsajobs-ui:
-          requires:
-            - lint-backend-dockerfile
-          filters:
-            branches:
-              only: karsajobs-ui
