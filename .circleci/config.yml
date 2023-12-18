@@ -13,7 +13,7 @@ jobs:
           name: Lint Dockerfile
           command: docker run --rm --interactive hadolint/hadolint < Dockerfile
 
-  build-app-karsajobs:
+  build-app-karsajobs-ui:
     docker:
       - image: cimg/base:stable
     steps:
