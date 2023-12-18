@@ -1,0 +1,31 @@
+version: 2.1
+jobs:
+  lint-dockerfile:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Hadolint
+          command: docker pull hadolint/hadolint
+      - run:
+          name: Lint Dockerfile
+          command: docker run --rm --interactive hadolint/hadolint < Dockerfile
+
+  build-app-karsajobs:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: 'sh build_push_image_karsajobs_ui.sh'
+
+workflows:
+  karsajobs-frontend-workflow:
+    jobs:
+      - lint-dockerfile
+
+      - build-app-karsajobs-ui:
+          requires:
+            - lint-dockerfile
