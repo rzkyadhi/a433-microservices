@@ -68,6 +68,7 @@ jobs:
           command: docker push ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest
 
 workflows:
+  version: 2
   karsajobs-workflow:
     jobs:
       - lint-backend-dockerfile:
