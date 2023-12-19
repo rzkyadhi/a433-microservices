@@ -1,37 +1,49 @@
 version: 2.1
 jobs:
+  # Defining the jobs of lint-dockerfile
   lint-dockerfile:
     docker:
+      # Pulling docker image circleci image, base image
       - image: cimg/base:stable
     steps:
+      # Checkout the code
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker # To Activate the docker command locallly
       - run:
           name: Install Hadolint
+          # Pulling hadolint image
           command: docker pull hadolint/hadolint
       - run:
           name: Lint Dockerfile
+          # Running the hadolint image and running the container of hadolint and actually linting dockerfile
           command: docker run --rm --interactive hadolint/hadolint < Dockerfile
-  
+  # Defining the jobs of test-app
   test-app:
     docker:
+      # Pulling docker image circleci image, contains golang:1.15
       - image: cimg/go:1.15
     steps:
+      # Checkout the code
       - checkout
       - run:
           name: Run Unit Tests
+          # Running unit test
           command: go test -v -short --count=1 $(go list ./...)
 
+  # Defining the jobs of build-app-karsajobs
   build-app-karsajobs:
     docker:
+      #
       - image: cimg/base:stable
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker # To Activate the docker command locally
       - run: 'sh build_push_image_karsajobs.sh'
 
 workflows:
+  # Defining the workflow
   karsajobs-backend-workflow:
+    # Running the steps of job
     jobs:
       - lint-dockerfile
 
