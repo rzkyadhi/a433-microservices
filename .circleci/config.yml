@@ -1,28 +1,39 @@
 version: 2.1
 jobs:
+  # Defining the jobs of lint-dockerfile
   lint-dockerfile:
     docker:
+      # Pulling docker image circleci image, base image
       - image: cimg/base:stable
     steps:
+      # Checkout the code
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker # To Activate the docker command locallly
       - run:
           name: Install Hadolint
+          # Pulling hadolint image
           command: docker pull hadolint/hadolint
       - run:
           name: Lint Dockerfile
+          # Running the hadolint image and running the container of hadolint and actually linting dockerfile
           command: docker run --rm --interactive hadolint/hadolint < Dockerfile
 
+  # Defining the jobs of build-app-karsajobs-ui
   build-app-karsajobs-ui:
     docker:
+      # Pulling docker image circleci image, base image
       - image: cimg/base:stable
     steps:
+      # Checkout the code
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker # To Activate the docker command locally
+      # Running created sh
       - run: 'sh build_push_image_karsajobs_ui.sh'
 
 workflows:
+  # Defining the workflow
   karsajobs-frontend-workflow:
+    # Running the steps of job
     jobs:
       - lint-dockerfile
 
